@@ -9,17 +9,15 @@
     <div class="row">
         <div class="col-12">
             <div class="alert">
-                <table class="table table-bordered col-12 text-center">
+                <table class="table table-striped col-12 text-center">
                     <thead>
                     <tr>
                         <th>Asignatura</th>
                         <th>Media</th>
                         <th>Suspensos</th>
                         <th>Aprobados</th>
-                        <th>Nota más alta</th>
-                        <th>Alumno</th>
-                        <th>Nota más baja</th>
-                        <th>Alumno</th>
+                        <th>Máximo</th>
+                        <th>Mínimo</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -30,10 +28,8 @@
                         echo '<td>' . $datos['media']. '</td>';
                         echo '<td>' . $datos['suspensos']. '</td>';
                         echo '<td>' . $datos['aprobados']. '</td>';
-                        echo '<td>' . $datos['max']['nota']. '</td>';
-                        echo '<td>' . $datos['max']['alumno']. '</td>';
-                        echo '<td>' . $datos['min']['nota']. '</td>';
-                        echo '<td>' . $datos['min']['alumno']. '</td>';
+                        echo '<td>' . $datos['max']['alumno'].': '.$datos['max']['nota']. '</td>';
+                        echo '<td>' . $datos['min']['alumno'].': '.$datos['min']['nota']. '</td>';
                         echo '</tr>';
                     }
                     ?>
@@ -41,6 +37,62 @@
                 </table>
             </div>
         </div>
+            <div class="col-12 col-lg-6">
+                <div class="alert alert-success">
+                    <h4>Aprobaron todo:</h4>
+                    <ul class="list-group">
+                        <?php
+                        foreach ($data['alumnos']['passAll'] as $alumno) {
+                            echo '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                            echo $alumno;
+                            echo '</li>';
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="alert alert-warning">
+                    <h4>Suspendieron alguna:</h4>
+                    <ul class="list-group">
+                        <?php
+                        foreach ($data['alumnos']['failOne'] as $alumno) {
+                            echo '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                            echo $alumno;
+                            echo '</li>';
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="alert alert-primary">
+                    <h4>Promocionan:</h4>
+                    <ul class="list-group">
+                        <?php
+                        foreach ($data['alumnos']['promote'] as $alumno) {
+                            echo '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                            echo $alumno;
+                            echo '</li>';
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="alert alert-danger">
+                    <h4>No promocionan:</h4>
+                    <ul class="list-group">
+                        <?php
+                        foreach ($data['alumnos']['noPromote'] as $alumno) {
+                            echo '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                            echo $alumno;
+                            echo '</li>';
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
     </div>
     <?php
 }
