@@ -11,31 +11,41 @@ if (!empty($_POST)) {
         if (count($data['errors']) === 0) {
             $decoded = json_decode($_POST['json'], true);
             $informe = array();
+            $suspensosPorAlumno = array();
             foreach ($decoded as $asignatura => $alumnos) {
                 $informe[$asignatura] = array();
-                $media = array_sum($alumnos) / count($alumnos);
+                $mediaAsignatura = 0;
                 $suspensos = 0;
                 $aprobados = 0;
                 $notaAlta = 0;
                 $alumnoAlta = "";
                 $notaBaja = 10;
                 $alumnoBaja = "";
-                foreach ($alumnos as $alumno => $nota) {
-                    if ($nota < 5) {
+                foreach ($alumnos as $alumno => $notas) {
+                    if(!array_key_exists($alumno, $suspensosPorAlumno)) {
+                        $suspensosPorAlumno[$alumno] = 0;
+                    }
+
+                    $media = round(array_sum($notas)/count($notas), 2);
+                    $mediaAsignatura += $media;
+                    if ( $media < 5) {
                         $suspensos++;
-                    } elseif ($nota >= 5) {
+                        $suspensosPorAlumno[$alumno]++;
+                    } elseif ($media >= 5) {
                         $aprobados++;
                     }
 
-                    if ($nota > $notaAlta) {
-                        $notaAlta = $nota;
+                    if ($media > $notaAlta) {
+                        $notaAlta = $media;
                         $alumnoAlta = $alumno;
-                    } elseif ($nota < $notaBaja) {
-                        $notaBaja = $nota;
+                    } elseif ($media < $notaBaja) {
+                        $notaBaja = $media;
                         $alumnoBaja = $alumno;
                     }
                 }
-                $informe[$asignatura]['media'] = $media;
+                $mediaAsignatura = round($mediaAsignatura/count($alumnos), 2);
+
+                $informe[$asignatura]['media'] = $mediaAsignatura;
                 $informe[$asignatura]['suspensos'] = $suspensos;
                 $informe[$asignatura]['aprobados'] = $aprobados;
                 $informe[$asignatura]['max'] = array();
@@ -45,8 +55,31 @@ if (!empty($_POST)) {
                 $informe[$asignatura]['min']['alumno'] = $alumnoBaja;
                 $informe[$asignatura]['min']['nota'] = $notaBaja;
             }
+
+            $alumnos = array();
+            $alumnos = [
+                'passAll' => array(),
+                'failOne' => array(),
+                'promote' => array(),
+                'noPromote' => array()
+            ];
+
+            foreach ($suspensosPorAlumno as $alumno => $suspensos) {
+                if ($suspensos == 0){
+                    $alumnos['passAll'][] = $alumno;
+                    $alumnos['promote'][] = $alumno;
+                }elseif ($suspensos == 1){
+                    $alumnos['failOne'][] = $alumno;
+                    $alumnos['promote'][] = $alumno;
+                }else{
+                    $alumnos['failOne'][] = $alumno;
+                    $alumnos['noPromote'][] = $alumno;
+                }
+            }
+
             $data['informe'] = $informe;
             $data['resultados'] = $decoded;
+            $data['alumnos'] = $alumnos;
         }
     }
 }
