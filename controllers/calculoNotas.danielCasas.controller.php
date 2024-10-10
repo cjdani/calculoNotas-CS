@@ -5,9 +5,10 @@ $data = array();
 
 $data['errors'] = [];
 //Cálculo de notas
-if (!empty($_POST)) {
+if(!empty($_POST)) {
     if (isset($_POST)) {
         $data['errors'] = checkForm($_POST['json']);
+        $data['input_json'] = filter_var($_POST['json'], FILTER_SANITIZE_SPECIAL_CHARS);
         if (count($data['errors']) === 0) {
             $decoded = json_decode($_POST['json'], true);
             $informe = array();
@@ -17,43 +18,60 @@ if (!empty($_POST)) {
                 $mediaAsignatura = 0;
                 $suspensos = 0;
                 $aprobados = 0;
-                $notaAlta = 0;
                 $alumnoAlta = "";
-                $notaBaja = 10;
                 $alumnoBaja = "";
-                foreach ($alumnos as $alumno => $notas) {
-                    if(!array_key_exists($alumno, $suspensosPorAlumno)) {
-                        $suspensosPorAlumno[$alumno] = 0;
-                    }
+                if (!empty($alumnos)) {
+                    $notaAlta = -1;
+                    $notaBaja = 11;
+                    foreach ($alumnos as $alumno => $notas) {
+                        //Añadimos el alumno al array de suspensos por alumno si aún no está
+                        if (!array_key_exists($alumno, $suspensosPorAlumno)) {
+                            $suspensosPorAlumno[$alumno] = 0;
+                        }
 
-                    $media = round(array_sum($notas)/count($notas), 2);
-                    $mediaAsignatura += $media;
-                    if ( $media < 5) {
-                        $suspensos++;
-                        $suspensosPorAlumno[$alumno]++;
-                    } elseif ($media >= 5) {
-                        $aprobados++;
-                    }
+                        //Calculamos la media del alumno en la asignatura y la añadimos a la de la asignatura
+                        $media = round(array_sum($notas) / count($notas), 2);
+                        $mediaAsignatura += array_sum($notas) / count($notas);
 
-                    if ($media > $notaAlta) {
-                        $notaAlta = $media;
-                        $alumnoAlta = $alumno;
-                    } elseif ($media < $notaBaja) {
-                        $notaBaja = $media;
-                        $alumnoBaja = $alumno;
+                        //Comprobamos si el alumno suspende o aprueba, en el primer caso le aumentamos el número de suspensos
+                        if ($media < 5) {
+                            $suspensos++;
+                            $suspensosPorAlumno[$alumno]++;
+                        } else {
+                            $aprobados++;
+                        }
+
+                        //Comprobamos las notas más alta y más baja de la asignatura y qué alumno la obtuvo
+                        if ($media > $notaAlta) {
+                            $notaAlta = $media;
+                            $alumnoAlta = $alumno;
+                        } elseif ($media < $notaBaja) {
+                            $notaBaja = $media;
+                            $alumnoBaja = $alumno;
+                        }
                     }
+                } else {
+                    $notaAlta = 0;
+                    $notaBaja = 0;
                 }
-                $mediaAsignatura = round($mediaAsignatura/count($alumnos), 2);
+
+                //Calculamos la media de la asignatura dividiendo entre el número de alumnos en dicha asignatura
+                if (!empty($alumnos)) {
+                    $mediaAsignatura = number_format($mediaAsignatura / count($alumnos), 2, ",");
+                } else {
+                    $mediaAsignatura = 0;
+                }
 
                 $informe[$asignatura]['media'] = $mediaAsignatura;
                 $informe[$asignatura]['suspensos'] = $suspensos;
                 $informe[$asignatura]['aprobados'] = $aprobados;
-                $informe[$asignatura]['max'] = array();
-                $informe[$asignatura]['max']['alumno'] = $alumnoAlta;
-                $informe[$asignatura]['max']['nota'] = $notaAlta;
-                $informe[$asignatura]['min'] = array();
-                $informe[$asignatura]['min']['alumno'] = $alumnoBaja;
-                $informe[$asignatura]['min']['nota'] = $notaBaja;
+                if (!empty($alumnos)) {
+                    $informe[$asignatura]['max'] = $alumnoAlta . ': ' . number_format($notaAlta, 2, ",");
+                    $informe[$asignatura]['min'] = $alumnoBaja . ': ' . number_format($notaBaja, 2, ",");
+                } else {
+                    $informe[$asignatura]['max'] = 0;
+                    $informe[$asignatura]['min'] = 0;
+                }
             }
 
             $alumnos = array();
@@ -65,13 +83,13 @@ if (!empty($_POST)) {
             ];
 
             foreach ($suspensosPorAlumno as $alumno => $suspensos) {
-                if ($suspensos == 0){
+                if ($suspensos == 0) {
                     $alumnos['passAll'][] = $alumno;
                     $alumnos['promote'][] = $alumno;
-                }elseif ($suspensos == 1){
+                } elseif ($suspensos == 1) {
                     $alumnos['failOne'][] = $alumno;
                     $alumnos['promote'][] = $alumno;
-                }else{
+                } else {
                     $alumnos['failOne'][] = $alumno;
                     $alumnos['noPromote'][] = $alumno;
                 }
@@ -129,5 +147,5 @@ function checkForm(string $texto): array
  * Llamamos a las vistas
  */
 include 'views/templates/header.php';
-include 'views/calculoNotas.view.php';
+include 'views/calculoNotas.danielCasas.view.php';
 include 'views/templates/footer.php';

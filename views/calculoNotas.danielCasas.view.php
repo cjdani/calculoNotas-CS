@@ -24,12 +24,12 @@
                     <?php
                     foreach ($data['informe'] as $asignatura => $datos) {
                         echo '<tr>';
-                        echo '<td>' . $asignatura. '</td>';
+                        echo '<td>' . ucfirst($asignatura). '</td>';
                         echo '<td>' . $datos['media']. '</td>';
                         echo '<td>' . $datos['suspensos']. '</td>';
                         echo '<td>' . $datos['aprobados']. '</td>';
-                        echo '<td>' . $datos['max']['alumno'].': '.$datos['max']['nota']. '</td>';
-                        echo '<td>' . $datos['min']['alumno'].': '.$datos['min']['nota']. '</td>';
+                        echo '<td>' . $datos['max'].'</td>';
+                        echo '<td>' . $datos['min'].'</td>';
                         echo '</tr>';
                     }
                     ?>
@@ -110,7 +110,7 @@
                     <div class="mb-3 col-12">
                         <label for="textarea">Inserte un json</label>
                         <textarea class="form-control" id="json" name="json"
-                                  rows="3"><?php echo $data['input_numeros'] ?? ''; ?></textarea>
+                                  rows="3"><?php echo $data['input_json'] ? $data['input_json'] : ''; ?></textarea>
                         <?php
                         foreach ($data['errors'] as $error) {
                             echo '<p class="text-danger">' . $error . '</p>';
