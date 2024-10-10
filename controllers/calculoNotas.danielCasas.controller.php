@@ -45,7 +45,8 @@ if(!empty($_POST)) {
                         if ($media > $notaAlta) {
                             $notaAlta = $media;
                             $alumnoAlta = $alumno;
-                        } elseif ($media < $notaBaja) {
+                        }
+                        if ($media < $notaBaja) {
                             $notaBaja = $media;
                             $alumnoBaja = $alumno;
                         }
