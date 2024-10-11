@@ -110,7 +110,7 @@
                     <div class="mb-3 col-12">
                         <label for="textarea">Inserte un json</label>
                         <textarea class="form-control" id="json" name="json"
-                                  rows="3"><?php echo $data['input_json'] ? $data['input_json'] : ''; ?></textarea>
+                                  rows="3"><?php echo $data['input_json'] ?? ''; ?></textarea>
                         <?php
                         foreach ($data['errors'] as $error) {
                             echo '<p class="text-danger">' . $error . '</p>';

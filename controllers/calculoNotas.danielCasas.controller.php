@@ -108,13 +108,15 @@ function checkForm(string $texto): array
 {
     $errors['texto'] = [];
     if (empty($texto)) {
-        $errors['texto'][] = "Introduzca un texto";
-    } else {
+        $errors['texto'][] = "Introduzca un JOSN";
+    }else {
         $decoded = json_decode($texto, true);
         if (is_null($decoded)) {
             $errors['texto'][] = "El texto introducido no es un JSON bien formado";
-        } else {
-            foreach ($decoded as $asignatura => $alumnos) {
+        }elseif (is_numeric($decoded)) {
+            $errors['texto'][] = "El texto introducido no es un JSON bien formado";
+        }else {
+             foreach ($decoded as $asignatura => $alumnos) {
                 if (!is_string($asignatura) || mb_strlen($asignatura) < 1) {
                     $errors['texto'][] = "'$asignatura' no es un nombre de asignatura válido";
                 }
